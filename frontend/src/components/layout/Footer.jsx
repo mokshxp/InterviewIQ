@@ -25,7 +25,7 @@ export default function Footer({ style = {}, className = '' }) {
             }}>
                 {/* Left — branding */}
                 <span style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600, color: 'var(--text-1)' }}>
-                    Interview<span style={{ color: 'var(--accent)' }}>IQ</span>
+                    Skili<span style={{ color: 'var(--accent)' }}>o</span>
                 </span>
 
                 {/* Center — links */}
@@ -71,7 +71,7 @@ export default function Footer({ style = {}, className = '' }) {
                         <Linkedin size={16} />
                     </a>
                     <span style={{ marginLeft: 4 }}>
-                        © {new Date().getFullYear()} InterviewIQ
+                        © {new Date().getFullYear()} Skilio
                     </span>
                 </div>
             </div>

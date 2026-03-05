@@ -157,10 +157,10 @@ export default function LandingPage({ devMode }) {
                         whileHover={{ scale: 1.1, rotate: 6 }}
                         transition={{ type: 'spring', stiffness: 400, damping: 15 }}
                     >
-                        IQ
+                        S
                     </motion.div>
-                    <span className="font-bold text-lg" style={{ fontFamily: 'Outfit, sans-serif' }}>
-                        Interview<span style={{ color: 'var(--amber)' }}>IQ</span>
+                    <span className="font-bold text-xl" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                        Skili<span style={{ color: 'var(--amber)' }}>o</span>
                     </span>
                 </div>
                 <div>

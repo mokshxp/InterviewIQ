@@ -75,6 +75,23 @@ app.use("/chat", chatRoutes);
 // Health check
 app.get("/health", (req, res) => res.json({ status: "ok" }));
 
+// global error handler to resolve HTML 500/413 errors
+app.use((err, req, res, next) => {
+    if (err.name === 'MulterError' && err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(413).json({ error: "File too large. Maximum size is 10MB." });
+    }
+
+    // Clerk unauthorized error
+    if (err.message === 'Unauthenticated' || err.statusCode === 401) {
+        return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    console.error("❌ Global error:", err);
+    res.status(err.status || 500).json({
+        error: err.message || "Internal server error"
+    });
+});
+
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);

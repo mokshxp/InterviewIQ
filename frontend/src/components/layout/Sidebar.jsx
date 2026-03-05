@@ -37,20 +37,20 @@ export default function Sidebar() {
             <div className="px-6 py-6 border-b" style={{ borderColor: 'var(--border)' }}>
                 <button onClick={() => navigate('/dashboard')} className="flex items-center gap-2.5 group">
                     <div
-                        className="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm"
+                        className="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-lg"
                         style={{
                             background: 'linear-gradient(135deg, var(--amber), var(--emerald))',
                             color: 'var(--bg-0)',
                             fontFamily: 'Outfit, sans-serif',
                         }}
                     >
-                        IQ
+                        S
                     </div>
                     <span
-                        className="font-bold text-lg tracking-tight"
+                        className="font-bold text-xl tracking-tight"
                         style={{ fontFamily: 'Outfit, sans-serif', color: 'var(--text-0)' }}
                     >
-                        Interview<span style={{ color: 'var(--amber)' }}>IQ</span>
+                        Skili<span style={{ color: 'var(--amber)' }}>o</span>
                     </span>
                 </button>
             </div>

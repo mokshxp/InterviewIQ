@@ -23,7 +23,7 @@ async function renderApp() {
 
     if (!isValidClerkKey(PUBLISHABLE_KEY)) {
         console.warn(
-            '[InterviewIQ] No valid Clerk key detected — running in Dev Mode (auth disabled).\n' +
+            '[Skilio] No valid Clerk key detected — running in Dev Mode (auth disabled).\n' +
             'Add VITE_CLERK_PUBLISHABLE_KEY to your .env to enable authentication.'
         )
         root.render(

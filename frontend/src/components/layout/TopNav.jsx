@@ -45,11 +45,11 @@ export default function TopNav({ devMode }) {
                             width: 28, height: 28, borderRadius: 7,
                             background: 'linear-gradient(135deg, var(--accent), var(--emerald))',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            fontSize: 11, fontWeight: 800, color: '#fff',
+                            fontSize: 14, fontWeight: 800, color: '#fff',
                             fontFamily: 'Outfit, sans-serif', letterSpacing: '-0.02em',
-                        }}>IQ</div>
-                        <span style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700, fontSize: 14.5, color: 'var(--text-0)', letterSpacing: '-0.02em' }}>
-                            Interview<span style={{ color: 'var(--accent)' }}>IQ</span>
+                        }}>S</div>
+                        <span style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700, fontSize: 16, color: 'var(--text-0)', letterSpacing: '-0.02em' }}>
+                            Skili<span style={{ color: 'var(--accent)' }}>o</span>
                         </span>
                     </button>
 

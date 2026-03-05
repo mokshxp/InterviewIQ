@@ -23,30 +23,33 @@ exports.sendMessage = async (req, res) => {
         const { userId } = typeof req.auth === 'function' ? req.auth() : req.auth;
         const { data: history } = await supabase
             .from("chatbot_messages")
-            .select("role, content")
+            .select("role, message")
             .eq("user_id", userId)
             .order("created_at", { ascending: false })
             .limit(10);
 
-        const sortedHistory = (history || []).reverse();
+        // Map `message` back to `content` for AI API compatibility inside ai.js
+        const mappedHistory = (history || []).map(m => ({ role: m.role, content: m.message })).reverse();
         const resumeContext = await getResumeContext(userId);
 
         // Save user message
-        await supabase.from("chatbot_messages").insert({
-            user_id: userId, role: "user", content: message,
+        const { error: userErr } = await supabase.from("chatbot_messages").insert({
+            user_id: userId, role: "user", message: message,
         });
+        if (userErr) console.warn("Supabase logic error inserting user message:", userErr);
 
         // Get AI response
         const response = await chatWithCopilot({
             message,
-            history: sortedHistory,
+            history: mappedHistory,
             resumeContext,
         });
 
         // Save assistant response
-        await supabase.from("chatbot_messages").insert({
-            user_id: userId, role: "assistant", content: response,
+        const { error: aiErr } = await supabase.from("chatbot_messages").insert({
+            user_id: userId, role: "assistant", message: response,
         });
+        if (aiErr) console.warn("Supabase log error inserting AI message:", aiErr);
 
         res.json({ response });
     } catch (err) {
@@ -60,13 +63,22 @@ exports.getHistory = async (req, res) => {
         const { userId } = typeof req.auth === 'function' ? req.auth() : req.auth;
         const { data, error } = await supabase
             .from("chatbot_messages")
-            .select("id, role, content, created_at")
+            .select("id, role, message, created_at")
             .eq("user_id", userId)
             .order("created_at", { ascending: true })
             .limit(100);
 
         if (error) throw error;
-        res.json({ messages: data || [] });
+
+        // Map db column `message` -> `content` for frontend
+        const messages = (data || []).map(msg => ({
+            id: msg.id,
+            role: msg.role,
+            content: msg.message,
+            created_at: msg.created_at
+        }));
+
+        res.json({ messages });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
@@ -92,8 +104,8 @@ exports.quickAction = async (req, res) => {
 
         // Save both sides to history
         await supabase.from("chatbot_messages").insert([
-            { user_id: userId, role: "user", content: message },
-            { user_id: userId, role: "assistant", content: response },
+            { user_id: userId, role: "user", message: message },
+            { user_id: userId, role: "assistant", message: response },
         ]);
 
         res.json({ response });

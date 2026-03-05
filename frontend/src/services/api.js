@@ -5,8 +5,7 @@ const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 // Create base instance
 const api = axios.create({
     baseURL: BASE_URL,
-    timeout: 30000,
-    headers: { 'Content-Type': 'application/json' },
+    timeout: 120000,
 })
 
 // Token injector — call this once from a component with Clerk auth
@@ -25,7 +24,7 @@ export function setupApiInterceptors(getToken) {
         (res) => res,
         (err) => {
             const status = err.response?.status
-            const message = err.response?.data?.detail || err.message || 'Unknown error'
+            const message = err.response?.data?.error || err.response?.data?.message || err.response?.data?.detail || err.message || 'Unknown error'
 
             if (status === 401) {
                 console.warn('[API] Unauthorized — redirecting to sign-in')
@@ -44,11 +43,14 @@ export function setupApiInterceptors(getToken) {
 export const resumeApi = {
     upload: (formData, onProgress) => {
         return api.post('/resume/upload', formData, {
-            headers: { 'Content-Type': 'multipart/form-data' },
             onUploadProgress: (e) => onProgress?.(Math.round((e.loaded / e.total) * 100)),
+            timeout: 120000, // 2 min timeout for large files + AI analysis
         })
     },
-    get: () => api.get('/resume/latest'),
+    get: (id = 'latest') => api.get(`/resume/${id}`),
+    list: () => api.get('/resume/list'),
+    delete: (id) => api.delete(`/resume/${id}`),
+    touch: (id) => api.put(`/resume/${id}/touch`),
 }
 
 // ── Interviews ───────────────────────────────────────────────

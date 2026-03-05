@@ -1,5 +1,7 @@
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
+import { Trash2, MessageSquare } from 'lucide-react'
 import { resumeApi } from '../services/api.js'
 
 const ACCEPTED = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
@@ -29,7 +31,42 @@ export default function ResumeUpload() {
     const [progress, setProgress] = useState(0)
     const [result, setResult] = useState(null)
     const [error, setError] = useState(null)
+    const [resumes, setResumes] = useState([])
     const inputRef = useRef()
+    const navigate = useNavigate()
+
+    const fetchResumes = useCallback(async () => {
+        try {
+            const res = await resumeApi.list()
+            setResumes(res.data || [])
+        } catch (e) {
+            console.error('Failed to fetch resumes', e)
+        }
+    }, [])
+
+    useEffect(() => {
+        fetchResumes()
+    }, [fetchResumes])
+
+    const handleDelete = async (id, e) => {
+        e.stopPropagation()
+        if (!window.confirm('Delete this resume?')) return
+        try {
+            await resumeApi.delete(id)
+            fetchResumes()
+        } catch (err) {
+            console.error(err)
+        }
+    }
+
+    const handleTouch = async (id) => {
+        try {
+            await resumeApi.touch(id)
+            navigate('/copilot', { state: { context: "I'd like to discuss the resume I just activated." } })
+        } catch (err) {
+            console.error(err)
+        }
+    }
 
     const handleFile = useCallback((f) => {
         if (!f) return
@@ -46,6 +83,7 @@ export default function ResumeUpload() {
         try {
             const res = await resumeApi.upload(fd, (pct) => setProgress(pct))
             setResult(res.data)
+            fetchResumes()
         } catch (e) {
             setError(e.message || 'Upload failed.')
         } finally { setUploading(false) }
@@ -152,6 +190,51 @@ export default function ResumeUpload() {
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            {/* ── Manage Resumes ────────────────────────────────── */}
+            {resumes.length > 0 && (
+                <div style={{ marginTop: 64 }}>
+                    <Divider label="Your Resumes" />
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                        {resumes.map(r => (
+                            <motion.div
+                                key={r.id}
+                                whileHover={{ scale: 1.01 }}
+                                onClick={() => handleTouch(r.id)}
+                                style={{
+                                    padding: '16px 20px', background: 'var(--bg-2)', border: '1px solid var(--border)',
+                                    borderRadius: 10, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                                    transition: 'border-color 0.2s'
+                                }}
+                            >
+                                <div>
+                                    <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: 16, fontWeight: 600, color: 'var(--text-0)', margin: 0 }}>
+                                        {r.primary_role || 'Software Engineer'}
+                                    </p>
+                                    <p style={{ fontFamily: 'Manrope, sans-serif', fontSize: 13, color: 'var(--text-2)', marginTop: 4 }}>
+                                        Uploaded {new Date(r.created_at).toLocaleDateString()}
+                                    </p>
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); handleTouch(r.id); }}
+                                        style={{ background: 'var(--accent)', color: '#000', border: 'none', padding: '6px 14px', borderRadius: 6, fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}
+                                    >
+                                        <MessageSquare size={14} /> Analyze
+                                    </button>
+                                    <button
+                                        onClick={(e) => handleDelete(r.id, e)}
+                                        style={{ background: 'transparent', border: 'none', color: 'var(--rose)', cursor: 'pointer', padding: 4 }}
+                                        title="Delete resume"
+                                    >
+                                        <Trash2 size={16} />
+                                    </button>
+                                </div>
+                            </motion.div>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             {/* ── Prepare section ────────────────────────────────── */}
             <div style={{ marginTop: 64 }}>

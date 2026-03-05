@@ -6,6 +6,14 @@ export default defineConfig({
     envDir: '../',
     server: {
         port: 5173,
+        proxy: {
+            '/resume': 'http://localhost:8000',
+            '/interview': 'http://localhost:8000',
+            '/chat': 'http://localhost:8000',
+            '/coding': 'http://localhost:8000',
+            '/analytics': 'http://localhost:8000',
+            '/health': 'http://localhost:8000',
+        },
     },
     build: {
         outDir: '../dist',
