@@ -25,14 +25,14 @@ const sectionTitle = {
 }
 
 const PLATFORM = [
-    { label: 'Problems', to: '/dashboard' },
-    { label: 'Sheets', to: '/dashboard' },
-    { label: 'Interview', to: '/start' },
+    { label: 'Mock Interviews', to: '/start' },
+    { label: 'Resume Analysis', to: '/resume' },
+    { label: 'AI Copilot', to: '/copilot' },
     { label: 'Dashboard', to: '/dashboard' },
 ]
 
 const RESOURCES = [
-    { label: 'Blog', to: '/contact' },
+    { label: 'Analytics', to: '/analytics' },
     { label: 'FAQ', to: '/contact' },
 ]
 

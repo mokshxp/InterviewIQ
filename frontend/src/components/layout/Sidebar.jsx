@@ -53,6 +53,7 @@ export default function Sidebar() {
                         Skili<span style={{ color: 'var(--amber)' }}>o</span>
                     </span>
                 </button>
+
             </div>
 
             {/* Nav */}

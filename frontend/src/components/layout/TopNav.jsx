@@ -39,7 +39,7 @@ export default function TopNav({ devMode }) {
                     {/* Logo */}
                     <button
                         onClick={() => navigate('/')}
-                        style={{ display: 'flex', alignItems: 'center', gap: 9, background: 'none', border: 'none', cursor: 'pointer', padding: 0, flexShrink: 0 }}
+                        style={{ display: 'flex', alignItems: 'center', background: 'none', border: 'none', cursor: 'pointer', padding: 0, flexShrink: 0 }}
                     >
                         <div style={{
                             width: 28, height: 28, borderRadius: 7,
