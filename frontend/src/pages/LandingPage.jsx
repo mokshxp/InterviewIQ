@@ -47,6 +47,108 @@ const STEPS = [
 ]
 
 /* ── Mock UI components ────────────────────────────────── */
+function MockHeroUI() {
+    return (
+        <div style={{ position: 'relative', width: '100%', maxWidth: 520, margin: '20px 0' }}>
+            {/* Main IDE Window */}
+            <div style={{ background: '#0d1117', borderRadius: 16, border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 24px 48px rgba(0,0,0,0.2)', overflow: 'hidden' }}>
+                {/* OS Header */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 16px', background: '#161b22', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                    <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#ff5f57', boxShadow: '0 0 4px #ff5f57' }} />
+                    <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#febc2e', boxShadow: '0 0 4px #febc2e' }} />
+                    <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#28c840', boxShadow: '0 0 4px #28c840' }} />
+                    <span style={{ flex: 1 }} />
+                    <div style={{ display: 'flex', gap: 6 }}>
+                        <span style={{ fontFamily: 'Fira Code, monospace', fontSize: 10, color: '#8b949e', background: '#21262d', padding: '4px 10px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.05)' }}>useDebounce.jsx</span>
+                    </div>
+                </div>
+                {/* Code Area */}
+                <div style={{ padding: '24px 20px', fontFamily: 'Fira Code, monospace', fontSize: 13, lineHeight: 1.6, color: '#c9d1d9' }}>
+                    <div style={{ display: 'flex' }}>
+                        <span style={{ color: '#484f58', userSelect: 'none', width: 24, textAlign: 'right', paddingRight: 10 }}>1</span>
+                        <span><span style={{ color: '#ff7b72' }}>import</span> {'{'} useState, useEffect {'}'} <span style={{ color: '#ff7b72' }}>from</span> <span style={{ color: '#a5d6ff' }}>'react'</span>;</span>
+                    </div>
+                    <div style={{ display: 'flex' }}>
+                        <span style={{ color: '#484f58', userSelect: 'none', width: 24, textAlign: 'right', paddingRight: 10 }}>2</span>
+                        <span></span>
+                    </div>
+                    <div style={{ display: 'flex' }}>
+                        <span style={{ color: '#484f58', userSelect: 'none', width: 24, textAlign: 'right', paddingRight: 10 }}>3</span>
+                        <span><span style={{ color: '#ff7b72' }}>export function</span> <span style={{ color: '#d2a8ff' }}>useDebounce</span>(value, delay) {'{'}</span>
+                    </div>
+                    <div style={{ display: 'flex' }}>
+                        <span style={{ color: '#484f58', userSelect: 'none', width: 24, textAlign: 'right', paddingRight: 10 }}>4</span>
+                        <span>&nbsp;&nbsp;<span style={{ color: '#ff7b72' }}>const</span> [dbVal, setDbVal] = <span style={{ color: '#d2a8ff' }}>useState</span>(value);</span>
+                    </div>
+                    <div style={{ display: 'flex' }}>
+                        <span style={{ color: '#484f58', userSelect: 'none', width: 24, textAlign: 'right', paddingRight: 10 }}>5</span>
+                        <span>&nbsp;&nbsp;</span>
+                    </div>
+                    <div style={{ display: 'flex' }}>
+                        <span style={{ color: '#484f58', userSelect: 'none', width: 24, textAlign: 'right', paddingRight: 10 }}>6</span>
+                        <span>&nbsp;&nbsp;<span style={{ color: '#d2a8ff' }}>useEffect</span>(() <span style={{ color: '#ff7b72' }}>{'=>'}</span> {'{'}</span>
+                    </div>
+                    <div style={{ display: 'flex', background: 'rgba(56,139,253,0.15)', boxShadow: 'inset 2px 0 0 #58a6ff' }}>
+                        <span style={{ color: '#484f58', userSelect: 'none', width: 24, textAlign: 'right', paddingRight: 10 }}>7</span>
+                        <span>&nbsp;&nbsp;&nbsp;&nbsp;<span style={{ color: '#ff7b72' }}>const</span> timer = <span style={{ color: '#d2a8ff' }}>setTimeout</span>(() <span style={{ color: '#ff7b72' }}>{'=>'}</span> <span style={{ color: '#d2a8ff' }}>setDbVal</span>(value), delay);</span>
+                    </div>
+                    <div style={{ display: 'flex', background: 'rgba(56,139,253,0.15)', boxShadow: 'inset 2px 0 0 #58a6ff' }}>
+                        <span style={{ color: '#484f58', userSelect: 'none', width: 24, textAlign: 'right', paddingRight: 10 }}>8</span>
+                        <span>&nbsp;&nbsp;&nbsp;&nbsp;<span style={{ color: '#ff7b72' }}>return</span> () <span style={{ color: '#ff7b72' }}>{'=>'}</span> <span style={{ color: '#d2a8ff' }}>clearTimeout</span>(timer);<motion.span animate={{ opacity: [1, 0, 1] }} transition={{ repeat: Infinity, duration: 0.8 }} style={{ display: 'inline-block', width: 8, height: 16, background: '#58a6ff', verticalAlign: 'middle', marginLeft: 4 }} /></span>
+                    </div>
+                    <div style={{ display: 'flex' }}>
+                        <span style={{ color: '#484f58', userSelect: 'none', width: 24, textAlign: 'right', paddingRight: 10 }}>9</span>
+                        <span>&nbsp;&nbsp;{'}'}, [value, delay]);</span>
+                    </div>
+                    <div style={{ display: 'flex' }}>
+                        <span style={{ color: '#484f58', userSelect: 'none', width: 24, textAlign: 'right', paddingRight: 10 }}>10</span>
+                        <span>&nbsp;&nbsp;</span>
+                    </div>
+                    <div style={{ display: 'flex' }}>
+                        <span style={{ color: '#484f58', userSelect: 'none', width: 24, textAlign: 'right', paddingRight: 10 }}>11</span>
+                        <span>&nbsp;&nbsp;<span style={{ color: '#ff7b72' }}>return</span> dbVal;</span>
+                    </div>
+                    <div style={{ display: 'flex' }}>
+                        <span style={{ color: '#484f58', userSelect: 'none', width: 24, textAlign: 'right', paddingRight: 10 }}>12</span>
+                        <span>{'}'}</span>
+                    </div>
+                </div>
+            </div>
+
+            {/* AI Call Bubble */}
+            <motion.div 
+                initial={{ opacity: 0, scale: 0.8, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} transition={{ delay: 0.2, type: 'spring' }}
+                style={{ position: 'absolute', top: -20, right: -30, zIndex: 10, background: 'rgba(20, 20, 20, 0.85)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 20, padding: '12px 18px', display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 12px 32px rgba(0,0,0,0.3)' }}
+            >
+                <div style={{ position: 'relative' }}>
+                    <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'var(--bg-2)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>🤖</div>
+                    <span style={{ position: 'absolute', bottom: 2, right: -2, width: 12, height: 12, borderRadius: '50%', background: 'var(--emerald)', border: '2px solid rgba(20,20,20,1)' }}></span>
+                </div>
+                <div>
+                    <div style={{ fontFamily: 'Outfit, sans-serif', fontSize: 13, fontWeight: 700, color: '#fff' }}>AI Interviewer</div>
+                    <div style={{ display: 'flex', gap: 4, alignItems: 'center', marginTop: 4 }}>
+                        {[...Array(5)].map((_, i) => (
+                            <motion.div key={i} animate={{ height: [4, 14, 4] }} transition={{ repeat: Infinity, duration: 1, delay: i * 0.15 }} style={{ width: 3, background: 'var(--accent)', borderRadius: 2 }} />
+                        ))}
+                    </div>
+                </div>
+            </motion.div>
+
+            {/* Success Toast */}
+            <motion.div 
+                initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 1, type: 'spring' }}
+                style={{ position: 'absolute', bottom: -16, left: -40, zIndex: 10, background: 'var(--bg-0)', border: '1px solid var(--border)', borderRadius: 14, padding: '14px 18px', display: 'flex', alignItems: 'flex-start', gap: 14, boxShadow: '0 16px 40px rgba(0,0,0,0.15)' }}
+            >
+                <div style={{ width: 32, height: 32, borderRadius: 10, background: 'var(--emerald-dim)', color: 'var(--emerald)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>✨</div>
+                <div>
+                    <div style={{ fontFamily: 'Outfit, sans-serif', fontSize: 15, fontWeight: 800, color: 'var(--text-0)' }}>Perfect cleanup!</div>
+                    <div style={{ fontSize: 13, color: 'var(--text-1)', marginTop: 2, maxWidth: 180, lineHeight: 1.4 }}>You handled the unmount edge case exactly right.</div>
+                </div>
+            </motion.div>
+        </div>
+    )
+}
+
 function MockInterviewUI() {
     return (
         <div style={{ ...glassCard, padding: 0, overflow: 'hidden', width: '100%', maxWidth: 520 }}>
@@ -250,9 +352,9 @@ export default function LandingPage({ devMode }) {
                         </motion.div>
                     </motion.div>
                     {/* Right — floating mock UI */}
-                    <motion.div variants={fadeRight} initial="hidden" animate="show" style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                        <motion.div animate={{ y: [0, -8, 0] }} transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}>
-                            <MockInterviewUI />
+                    <motion.div variants={fadeRight} initial="hidden" animate="show" style={{ display: 'flex', justifyContent: 'flex-end', transformOrigin: 'center' }}>
+                        <motion.div animate={{ y: [0, -25, 0], rotate: [0, -1, 0] }} transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}>
+                            <MockHeroUI />
                         </motion.div>
                     </motion.div>
                 </div>
@@ -333,8 +435,8 @@ export default function LandingPage({ devMode }) {
                ═══════════════════════════════════════════════ */}
             <section style={{ ...sectionPad, background: `linear-gradient(180deg, transparent, var(--bg-1), transparent)` }}>
                 <div style={{ ...maxW, display: 'grid', gridTemplateColumns: '1fr 1.1fr', gap: 60, alignItems: 'center' }}>
-                    <motion.div variants={fadeLeft} initial="hidden" whileInView="show" viewport={{ once: true }}>
-                        <motion.div animate={{ y: [0, -6, 0] }} transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}>
+                    <motion.div variants={fadeLeft} initial="hidden" whileInView="show" viewport={{ once: true }} style={{ transformOrigin: 'center' }}>
+                        <motion.div animate={{ y: [0, -20, 0], rotate: [0, 1.5, 0] }} transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}>
                             <MockInterviewUI />
                         </motion.div>
                     </motion.div>
@@ -377,8 +479,8 @@ export default function LandingPage({ devMode }) {
                             ))}
                         </motion.ul>
                     </motion.div>
-                    <motion.div variants={fadeRight} initial="hidden" whileInView="show" viewport={{ once: true }} style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                        <motion.div animate={{ y: [0, -7, 0] }} transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}>
+                    <motion.div variants={fadeRight} initial="hidden" whileInView="show" viewport={{ once: true }} style={{ display: 'flex', justifyContent: 'flex-end', transformOrigin: 'center' }}>
+                        <motion.div animate={{ y: [0, -22, 0], rotate: [0, -1.2, 0] }} transition={{ duration: 11, repeat: Infinity, ease: 'easeInOut' }}>
                             <MockCopilotUI />
                         </motion.div>
                     </motion.div>
@@ -392,8 +494,8 @@ export default function LandingPage({ devMode }) {
                ═══════════════════════════════════════════════ */}
             <section style={{ ...sectionPad, background: `linear-gradient(180deg, transparent, var(--bg-1), transparent)` }}>
                 <div style={{ ...maxW, display: 'grid', gridTemplateColumns: '1fr 1.1fr', gap: 60, alignItems: 'center' }}>
-                    <motion.div variants={fadeLeft} initial="hidden" whileInView="show" viewport={{ once: true }}>
-                        <motion.div animate={{ y: [0, -6, 0] }} transition={{ duration: 5.5, repeat: Infinity, ease: 'easeInOut' }}>
+                    <motion.div variants={fadeLeft} initial="hidden" whileInView="show" viewport={{ once: true }} style={{ transformOrigin: 'center' }}>
+                        <motion.div animate={{ y: [0, -24, 0], rotate: [0, 1, 0] }} transition={{ duration: 13, repeat: Infinity, ease: 'easeInOut' }}>
                             <MockAnalyticsUI />
                         </motion.div>
                     </motion.div>
@@ -441,7 +543,7 @@ export default function LandingPage({ devMode }) {
                             </SafeSignInButton>
                         </SafeSignedOut>
                         <SafeSignedIn>
-                            <motion.button className="btn-amber btn-lg" onClick={() => navigate('/start')} whileHover={{ scale: 1.06, boxShadow: '0 0 32px var(--amber-glow)' }} whileTap={{ scale: 0.97 }}>
+                            <motion.button className="btn-amber btn-lg" onClick={() => navigate('/dashboard')} whileHover={{ scale: 1.06, boxShadow: '0 0 32px var(--amber-glow)' }} whileTap={{ scale: 0.97 }}>
                                 🚀 Launch AI Interview →
                             </motion.button>
                         </SafeSignedIn>

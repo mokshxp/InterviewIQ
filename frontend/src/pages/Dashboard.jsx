@@ -48,51 +48,79 @@ export default function Dashboard() {
     const scoreColor = (s) => s >= 75 ? 'var(--emerald)' : s >= 50 ? 'var(--accent)' : 'var(--rose)'
 
     return (
-        <motion.div variants={container} initial="hidden" animate="show">
+        <motion.div variants={container} initial="hidden" animate="show" style={{ position: 'relative' }}>
+            {/* Background Orbs */}
+            <div className="orb orb-amber" style={{ width: 400, height: 400, top: '-100px', right: '-50px', opacity: 0.15, filter: 'blur(80px)', pointerEvents: 'none' }} />
+            <div className="orb orb-emerald" style={{ width: 300, height: 300, bottom: '10%', left: '-50px', opacity: 0.1, filter: 'blur(60px)', pointerEvents: 'none' }} />
+
             {/* Section header */}
-            <motion.div variants={fadeUp} style={{ marginBottom: 36 }}>
+            <motion.div variants={fadeUp} style={{ marginBottom: 40, position: 'relative', zIndex: 1 }}>
                 <p style={{
-                    fontFamily: 'Fira Code, monospace', fontSize: 10, letterSpacing: '0.14em',
-                    color: 'var(--text-2)', marginBottom: 3, textTransform: 'uppercase',
+                    fontFamily: 'Fira Code, monospace', fontSize: 11, letterSpacing: '0.12em',
+                    color: 'var(--accent)', marginBottom: 6, textTransform: 'uppercase',
                 }}>
                     Interview Performance · {getGreeting()}
                 </p>
                 <h1 style={{
-                    fontFamily: 'Outfit, sans-serif', fontSize: 36, fontWeight: 800,
+                    fontFamily: 'Outfit, sans-serif', fontSize: 42, fontWeight: 800,
                     color: 'var(--text-0)', lineHeight: 1, letterSpacing: '-0.03em', margin: 0,
                 }}>
-                    {firstName}
+                    Welcome Back, {firstName}
                 </h1>
             </motion.div>
 
             {/* Main 2-col */}
-            <motion.div variants={container} style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 48, alignItems: 'start' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 48, alignItems: 'start', position: 'relative', zIndex: 1 }}>
 
                 {/* LEFT */}
-                <motion.div variants={container}>
+                <div>
                     {/* Score */}
-                    <motion.div variants={fadeUp} style={{ marginBottom: 36 }}>
+                    <motion.div variants={fadeUp} style={{ 
+                        marginBottom: 40, 
+                        background: 'var(--bg-1)', 
+                        padding: '32px', 
+                        borderRadius: 20, 
+                        border: '1px solid var(--border-md)',
+                        boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+                        backdropFilter: 'blur(8px)'
+                    }}>
                         <p style={LABEL}>Average Score</p>
                         {loading ? (
                             <div style={{ width: 100, height: 72, borderRadius: 6, marginTop: 8 }} className="animate-shimmer" />
                         ) : (
-                            <motion.div
-                                initial={{ opacity: 0, y: 14, scale: 0.92 }}
-                                animate={{ opacity: 1, y: 0, scale: 1 }}
-                                transition={{ delay: 0.25, duration: 0.5, ease: [0.34, 1.2, 0.64, 1] }}
-                                style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginTop: 6 }}
-                            >
-                                <AnimatedNumber
-                                    value={score}
-                                    style={{
-                                        fontFamily: 'Outfit, sans-serif', fontSize: 72, fontWeight: 800, lineHeight: 1,
-                                        color: score != null ? scoreColor(score) : 'var(--text-2)', letterSpacing: '-0.04em',
-                                    }}
-                                />
-                                {score != null && (
-                                    <span style={{ fontFamily: 'Fira Code, monospace', fontSize: 13, color: 'var(--text-2)' }}>/100</span>
-                                )}
-                            </motion.div>
+                            <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 24, marginTop: 12 }}>
+                                <div style={{ position: 'relative', width: 100, height: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <svg width="100" height="100" viewBox="0 0 100 100">
+                                        <circle cx="50" cy="50" r="45" fill="none" stroke="var(--bg-3)" strokeWidth="6" />
+                                        <motion.circle 
+                                            cx="50" cy="50" r="45" fill="none" 
+                                            stroke={score != null ? scoreColor(score) : 'var(--text-2)'} 
+                                            strokeWidth="6" strokeDasharray="283"
+                                            initial={{ strokeDashoffset: 283 }}
+                                            animate={{ strokeDashoffset: 283 - (283 * (score || 0)) / 100 }}
+                                            transition={{ duration: 1.5, ease: "easeOut", delay: 0.4 }}
+                                            strokeLinecap="round"
+                                            transform="rotate(-90 50 50)"
+                                        />
+                                    </svg>
+                                    <div style={{ position: 'absolute', textAlign: 'center' }}>
+                                        <AnimatedNumber
+                                            value={score}
+                                            style={{
+                                                fontFamily: 'Outfit, sans-serif', fontSize: 28, fontWeight: 800,
+                                                color: score != null ? scoreColor(score) : 'var(--text-2)', letterSpacing: '-0.02em',
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+                                <div>
+                                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+                                        <span style={{ fontFamily: 'Outfit, sans-serif', fontSize: 48, fontWeight: 800, color: 'var(--text-0)' }}>{score || '—'}</span>
+                                        <span style={{ fontFamily: 'Fira Code, monospace', fontSize: 14, color: 'var(--text-2)' }}>PPS</span>
+                                    </div>
+                                    <p style={{ fontSize: 12, color: 'var(--text-2)', marginTop: -4 }}>Peak Performance Score</p>
+                                </div>
+                            </div>
                         )}
 
                         {/* Readiness bar */}
@@ -128,15 +156,22 @@ export default function Dashboard() {
                     <motion.div variants={fadeUp} style={{ height: 1, background: 'var(--border)', marginBottom: 36 }} />
 
                     {/* Recent Sessions */}
-                    <motion.div variants={fadeUp}>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+                    <motion.div variants={fadeUp} style={{
+                        background: 'var(--bg-1)',
+                        padding: '32px',
+                        borderRadius: 20,
+                        border: '1px solid var(--border-md)',
+                        boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+                        backdropFilter: 'blur(8px)'
+                    }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
                             <p style={LABEL}>Recent Sessions</p>
                             <button onClick={() => navigate('/analytics')}
-                                style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'Fira Code, monospace', fontSize: 11, color: 'var(--accent)', padding: 0, letterSpacing: '0.04em', transition: 'opacity 0.15s' }}
-                                onMouseEnter={e => e.currentTarget.style.opacity = '0.65'}
-                                onMouseLeave={e => e.currentTarget.style.opacity = '1'}
+                                style={{ background: 'var(--bg-3)', border: '1px solid var(--border)', cursor: 'pointer', fontFamily: 'Fira Code, monospace', fontSize: 11, color: 'var(--accent)', padding: '6px 14px', borderRadius: 8, letterSpacing: '0.04em', transition: 'all 0.2s' }}
+                                onMouseEnter={e => { e.currentTarget.style.background = 'var(--accent-dim)'; e.currentTarget.style.borderColor = 'var(--accent)'; }}
+                                onMouseLeave={e => { e.currentTarget.style.background = 'var(--bg-3)'; e.currentTarget.style.borderColor = 'var(--border)'; }}
                             >
-                                all →
+                                View all →
                             </button>
                         </div>
 
@@ -161,11 +196,18 @@ export default function Dashboard() {
                             </motion.div>
                         )}
                     </motion.div>
-                </motion.div>
+                </div>
 
                 {/* RIGHT — Telemetry column */}
-                <motion.div variants={fadeLeft}>
-                    <p style={{ ...LABEL, marginBottom: 0 }}>Metrics</p>
+                <motion.div variants={fadeLeft} style={{
+                    background: 'var(--bg-1)',
+                    padding: '28px',
+                    borderRadius: 20,
+                    border: '1px solid var(--border-md)',
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+                    backdropFilter: 'blur(8px)'
+                }}>
+                    <p style={{ ...LABEL, marginBottom: 8 }}>Overview</p>
                     <TelRow label="Total Sessions" value={loading ? null : total} />
                     <TelRow label="Best Score" value={loading ? null : best} unit="/100" accent={best != null ? scoreColor(best) : null} />
                     <TelRow label="Avg Score" value={loading ? null : score} unit="/100" accent={score != null ? scoreColor(score) : null} />
@@ -173,13 +215,13 @@ export default function Dashboard() {
 
                     <div style={{ height: 1, background: 'var(--border)', margin: '24px 0' }} />
 
-                    <p style={{ ...LABEL, marginBottom: 12 }}>Actions</p>
+                    <p style={{ ...LABEL, marginBottom: 16 }}>Quick Actions</p>
                     <QA label="Start Interview" onClick={() => navigate('/start')} primary />
                     <QA label="Upload Resume" onClick={() => navigate('/resume')} />
                     <QA label="Open Copilot" onClick={() => navigate('/copilot')} />
                     <QA label="View Analytics" onClick={() => navigate('/analytics')} />
                 </motion.div>
-            </motion.div>
+            </div>
         </motion.div>
     )
 }
@@ -263,19 +305,21 @@ function QA({ label, onClick, primary }) {
     return (
         <motion.button
             onClick={onClick}
-            whileHover={{ scale: 1.015, x: primary ? 0 : 2 }}
-            whileTap={{ scale: 0.97 }}
-            transition={{ duration: 0.13 }}
+            whileHover={{ scale: 1.02, x: 4 }}
+            whileTap={{ scale: 0.98 }}
+            transition={{ duration: 0.15 }}
             style={{
-                display: 'block', width: '100%', padding: '9px 14px', marginBottom: 7, borderRadius: 7, cursor: 'pointer',
-                fontFamily: 'Manrope, sans-serif', fontSize: 13, fontWeight: 500, textAlign: 'left',
-                background: primary ? 'var(--accent)' : 'transparent',
-                color: primary ? 'var(--bg-0)' : 'var(--text-1)',
-                border: primary ? '1px solid transparent' : '1px solid var(--border-md)',
-                position: 'relative', overflow: 'hidden',
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', padding: '12px 16px', marginBottom: 10, borderRadius: 12, cursor: 'pointer',
+                fontFamily: 'Manrope, sans-serif', fontSize: 14, fontWeight: 600, textAlign: 'left',
+                background: primary ? 'linear-gradient(135deg, var(--accent), #ff9f00)' : 'var(--bg-2)',
+                color: primary ? 'var(--bg-0)' : 'var(--text-0)',
+                border: '1px solid var(--border-md)',
+                boxShadow: primary ? '0 4px 12px var(--accent-glow)' : 'none',
+                transition: 'all 0.2s',
             }}
         >
-            {label}
+            <span>{label}</span>
+            <span style={{ opacity: 0.5, fontSize: 18 }}>→</span>
         </motion.button>
     )
 }
