@@ -1,71 +1,59 @@
-# 🚀 Skilio Deployment Guide: Step-by-Step
+# 🚂 Railway Deployment Guide: Skilio
 
-This guide will walk you through deploying your **Skilio AI Interview Coach** from scratch. Don't worry, even if this is your first time, these steps will make it simple and safe!
+This guide explains how to deploy your **Skilio AI Interview Coach** on [Railway](https://railway.app/). We will create two services: one for the backend and one for the frontend.
 
 ---
 
 ## 🛠 Phase 1: Push Your Code to GitHub
-Your code needs to be on GitHub so that Vercel (for frontend) and Render (for backend) can "read" it and build your website.
+Your code must be on GitHub so Railway can pull it.
 
-1.  **Open your terminal** in the root `skilio` folder.
-2.  **Run these commands** one by one:
+1.  **Terminal Check**: Run these in the `skilio` root folder:
     ```powershell
     git add .
-    git commit -m "chore: prepare for deployment"
+    git commit -m "chore: railway deployment setup"
     git push origin main
     ```
 
 ---
 
-## 🧠 Phase 2: Deploy the Backend (Render)
-The backend is the "brain" of your app. It handles AI logic, database connections, and WebSockets.
-
-1.  **Go to [dashboard.render.com](https://dashboard.render.com)** and log in with GitHub.
-2.  **Click "New" → "Web Service"**.
-3.  **Connect your GitHub Repository** (`Skilio-AI-Interview-Coach`).
-4.  **Configure the Service**:
+## 🧠 Phase 2: Deploy the Backend
+1.  **Railway Dashboard**: Click **"New"** → **"GitHub Repo"**.
+2.  **Select your repo**.
+3.  **Choose "Manual"** setup when prompted (or just wait for it to create).
+4.  **Service Settings**:
     *   **Name**: `skilio-backend`
-    *   **Environment**: `Node`
     *   **Root Directory**: `backend`
-    *   **Build Command**: `npm install`
-    *   **Start Command**: `npm start`
-5.  **Add Environment Variables**:
-    *   Click **"Advanced"** → **"Add Environment Variable"**.
-    *   Copy **every key** from your [backend/.env](file:///d:/skilio/backend/.env) file. You will need:
-        *   `DATABASE_URL` (From Supabase)
-        *   `CLERK_SECRET_KEY` (From Clerk)
-        *   `NVIDIA_API_KEY` (Your NVIDIA AI key)
-        *   `PORT` (Set to `10000`)
-6.  **Click "Create Web Service"**.
-    *   *Wait for the console to say "Server running".*
-    *   **Important**: Copy the URL Render gives you (e.g., `https://skilio-backend.onrender.com`).
+    *   **Watch Patterns**: `/backend`
+5.  **Variables**: Add ALL values from your [backend/.env](file:///d:/skilio/backend/.env):
+    *   `DATABASE_URL`
+    *   `CLERK_SECRET_KEY`
+    *   `NVIDIA_API_KEY`
+    *   `SUPABASE_URL`
+    *   `SUPABASE_SERVICE_ROLE_KEY`
+    *   `PORT`: `8000`
+6.  **Railway Link**: Railway will give you a domain (e.g., `skilio-production.up.railway.app`). **Copy it.**
 
 ---
 
-## 🎨 Phase 3: Deploy the Frontend (Vercel)
-The frontend is the "face" of your app that users actually see.
-
-1.  **Go to [vercel.com](https://vercel.com)** and log in with GitHub.
-2.  **Click "Add New" → "Project"**.
-3.  **Import your `skilio` repo**.
-4.  **Override Settings**:
-    *   **Framework Preset**: `Vite`
-    *   **Root Directory**: `./` (Leave as default)
-    *   **Output Directory**: `dist`
+## 🎨 Phase 3: Deploy the Frontend
+1.  **Railway Dashboard**: Go back to your project and click **"New"** → **"GitHub Repo"**.
+2.  **Select the SAME repo**.
+3.  **Service Settings**:
+    *   **Name**: `skilio-frontend`
+    *   **Root Directory**: `./` (Root)
     *   **Build Command**: `npm run build`
-    *   **Install Command**: (Turn OFF or leave as default `npm install`)
-5.  **Add Environment Variables**:
-    *   `VITE_API_URL`: **Paste the Backend URL you copied from Render here.**
-    *   `VITE_CLERK_PUBLISHABLE_KEY`: (From your Clerk dashboard).
-6.  **Click "Deploy"**.
+    *   **Start Command**: `npx serve -s dist`
+4.  **Variables**:
+    *   `VITE_API_URL`: **Paste the Backend Domain from Step 2 here.**
+    *   `VITE_CLERK_PUBLISHABLE_KEY`: (From your frontend dashboard).
+5.  **Install `serve`**: Since Vite produces static files, we need a small server to host them. I'll add `serve` to your package.json dependencies now.
 
 ---
 
-## 🚀 What Happens Next?
-*   **Live Link**: Vercel will give you a domain (e.g., `skilio.vercel.app`).
-*   **Updates**: From now on, whenever you want to update the site, just do another **Git Push**. The site will update automatically in ~2 minutes!
-*   **No Risk**: If something breaks, the old version stays live until the new one is fixed. It's safe!
+## 🚀 Troubleshooting
+*   If the frontend doesn't load, check the **Variables** to ensure the backend URL includes `https://`.
+*   Railway automatically handles SSL, so your links will be secure by default.
 
 ---
 
-**Good luck! You're about to put your first project on the internet!** 🎊
+**Good luck on the tracks!** 🚂💨
