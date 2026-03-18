@@ -34,7 +34,7 @@ The backend is the "brain" of your app. It handles AI logic, database connection
     *   Copy **every key** from your [backend/.env](file:///d:/skilio/backend/.env) file. You will need:
         *   `DATABASE_URL` (From Supabase)
         *   `CLERK_SECRET_KEY` (From Clerk)
-        *   `OPENAI_API_KEY` (Your AI key)
+        *   `NVIDIA_API_KEY` (Your NVIDIA AI key)
         *   `PORT` (Set to `10000`)
 6.  **Click "Create Web Service"**.
     *   *Wait for the console to say "Server running".*
