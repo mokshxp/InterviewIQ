@@ -27,6 +27,13 @@ export default function InterviewRoom() {
     const [phase, setPhase] = useState('connecting') // connecting | question | feedback | ended
     const timerRef = useRef(null)
 
+    const handleReconnect = async () => {
+        setWsError(null)
+        setWsStatus('connecting')
+        const token = await getToken()
+        wsClient.connect(id, token)
+    }
+
     // WebSocket setup
     useEffect(() => {
         let cleanup
@@ -36,9 +43,12 @@ export default function InterviewRoom() {
                 setWsStatus('connecting')
 
                 cleanup = [
-                    wsClient.on('connected', () => { setWsStatus('connected'); setPhase('question') }),
+                    wsClient.on('connected', () => { setWsStatus('connected'); setPhase('question'); setWsError(null) }),
                     wsClient.on('disconnected', () => { setWsStatus('disconnected'); setWsError('Connection lost. Auto-reconnecting…') }),
-                    wsClient.on('error', () => { setWsStatus('error'); setWsError('WebSocket error. Check connection.') }),
+                    wsClient.on('error', (e) => { 
+                        setWsStatus('error'); 
+                        setWsError('WebSocket connection failed. Ensure the server is online.') 
+                    }),
                     wsClient.on('question', (d) => handleQuestion(d.payload)),
                     wsClient.on('feedback', (d) => handleFeedback(d.payload)),
                     wsClient.on('run_result', (d) => { setOutput(d.payload); setRunning(false) }),
@@ -227,19 +237,51 @@ export default function InterviewRoom() {
 
             {/* Reconnecting Overlay */}
             <AnimatePresence>
-                {wsStatus === 'disconnected' && (
+                {(wsStatus === 'disconnected' || wsStatus === 'error') && (
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-md"
-                        style={{ background: 'rgba(0,0,0,0.6)' }}
+                        style={{ background: 'rgba(0,0,0,0.8)' }}
                     >
-                        <div className="bg-white/10 p-8 rounded-2xl border border-white/20 text-center shadow-2xl">
-                            <Spinner size={32} className="mx-auto mb-4" />
-                            <h3 className="text-xl font-bold mb-2">Connection Lost</h3>
-                            <p className="text-sm opacity-80">Relaunching secure connection... Stand by.</p>
-                        </div>
+                        <motion.div 
+                            initial={{ scale: 0.9, y: 20 }}
+                            animate={{ scale: 1, y: 0 }}
+                            className="bg-n1 p-10 rounded-3xl border border-white/10 text-center shadow-2xl max-w-sm"
+                            style={{ background: 'var(--bg-1)' }}
+                        >
+                            <div className="mb-6 flex justify-center">
+                                {wsStatus === 'error' ? (
+                                    <div className="w-16 h-16 rounded-full bg-rose/10 flex items-center justify-center text-rose">
+                                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                                    </div>
+                                ) : (
+                                    <Spinner size={48} className="text-amber" />
+                                )}
+                            </div>
+                            <h3 className="text-2xl font-bold mb-3" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                                {wsStatus === 'error' ? 'Connection Error' : 'Connection Lost'}
+                            </h3>
+                            <p className="text-sm opacity-70 mb-8 leading-relaxed">
+                                {wsError || 'We are having trouble reaching the interview server. Please check your internet or try again.'}
+                            </p>
+                            
+                            <div className="flex flex-col gap-3">
+                                <button 
+                                    className="btn-amber w-full justify-center py-4 text-base"
+                                    onClick={handleReconnect}
+                                >
+                                    Try Reconnecting Now
+                                </button>
+                                <button 
+                                    className="btn-ghost w-full justify-center text-xs opacity-50"
+                                    onClick={() => navigate('/dashboard')}
+                                >
+                                    Return to Dashboard
+                                </button>
+                            </div>
+                        </motion.div>
                     </motion.div>
                 )}
             </AnimatePresence>

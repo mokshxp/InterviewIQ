@@ -1,6 +1,17 @@
-const WS_BASE = import.meta.env.VITE_WS_URL || 'ws://localhost:8000'
-const RECONNECT_DELAY_MS = 3000
-const MAX_RECONNECTS = 5
+const getWsBase = () => {
+    if (import.meta.env.VITE_WS_URL) return import.meta.env.VITE_WS_URL
+    const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws'
+    // If we're on a deployed Vercel site, we can't guess the Render URL, 
+    // but this ensures we use the right protocol if provided via VITE_API_URL
+    if (import.meta.env.VITE_API_URL) {
+        return import.meta.env.VITE_API_URL.replace(/^http/, 'ws')
+    }
+    return `${protocol}://localhost:8000`
+}
+
+const WS_BASE = getWsBase()
+const RECONNECT_DELAY_MS = 2000
+const MAX_RECONNECTS = 10
 
 class InterviewWebSocket {
     constructor() {

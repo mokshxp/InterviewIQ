@@ -21,20 +21,8 @@ const app = express();
 app.use(helmet());
 
 // ── CORS — restrict to known origins ─────────────────────────
-const allowedOrigins = [
-    "http://localhost:5173",
-    "http://localhost:3000",
-    // TODO: add your production domain here
-    // "https://your-app.com",
-];
 app.use(cors({
-    origin: (origin, cb) => {
-        if (!origin || allowedOrigins.includes(origin) || origin.includes('localhost') || origin.includes('127.0.0.1')) {
-            return cb(null, true);
-        }
-        console.warn(`[CORS] Rejected origin: ${origin}`);
-        cb(new Error("Not allowed by CORS"));
-    },
+    origin: true,
     credentials: true,
 }));
 
