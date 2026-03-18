@@ -4,10 +4,10 @@
     "version": "0.1.0",
     "type": "module",
     "scripts": {
-        "dev": "cd frontend && vite",
-        "build": "cd frontend && vite build",
+        "dev": "vite ./frontend",
+        "build": "vite build ./frontend",
         "lint": "eslint .",
-        "preview": "cd frontend && vite preview"
+        "preview": "vite preview ./frontend"
     },
     "dependencies": {
         "@clerk/clerk-react": "^5.0.0",
