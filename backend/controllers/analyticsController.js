@@ -8,7 +8,7 @@ exports.getAnalytics = async (req, res) => {
         const { data: analyticsRow, error: analyticsErr } = await supabase
             .from("user_analytics")
             .select("*")
-            .eq("user_id", userId)
+            .eq("user_id", userId)              
             .single();
 
         if (analyticsErr && analyticsErr.code !== 'PGRST116') {

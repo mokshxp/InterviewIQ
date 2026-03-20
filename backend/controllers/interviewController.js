@@ -353,7 +353,8 @@ exports.endInterview = async (req, res) => {
             weak_topics: summary.weak_topics,
             recommendation: summary.recommendation,
             // Strengths and study suggestions can be stored in metadata or JSON columns if exist
-        }).eq("id", req.params.id);
+        }).eq("id", req.params.id)
+          .eq("user_id", userId);
 
         res.json({ message: "Interview completed", total_score: totalScore, summary });
     } catch (err) {

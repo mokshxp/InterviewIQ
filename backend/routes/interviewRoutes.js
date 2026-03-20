@@ -3,12 +3,14 @@ const router = express.Router();
 const interviewController = require("../controllers/interviewController");
 const authMiddleware = require("../middleware/authMiddleware");
 
-router.get("/", authMiddleware, interviewController.listSessions);
-router.post("/start", authMiddleware, interviewController.startInterview);
-router.get("/:id", authMiddleware, interviewController.getSession);
-router.post("/:id/next-round", authMiddleware, interviewController.nextRound);
-router.post("/:id/submit-answer", authMiddleware, interviewController.submitAnswer);
-router.post("/:id/end", authMiddleware, interviewController.endInterview);
-router.get("/:id/results", authMiddleware, interviewController.getResults);
+const { interviewSchemas } = require("../middleware/validator");
+
+router.get("/", authMiddleware, interviewSchemas.listSessions, interviewController.listSessions);
+router.post("/start", authMiddleware, interviewSchemas.startInterview, interviewController.startInterview);
+router.get("/:id", authMiddleware, interviewSchemas.getById, interviewController.getSession);
+router.post("/:id/next-round", authMiddleware, interviewSchemas.getById, interviewSchemas.startInterview, interviewController.nextRound);
+router.post("/:id/submit-answer", authMiddleware, interviewSchemas.getById, interviewSchemas.submitAnswer, interviewController.submitAnswer);
+router.post("/:id/end", authMiddleware, interviewSchemas.getById, interviewController.endInterview);
+router.get("/:id/results", authMiddleware, interviewSchemas.getById, interviewController.getResults);
 
 module.exports = router;

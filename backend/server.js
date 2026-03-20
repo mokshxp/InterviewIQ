@@ -3,6 +3,14 @@ const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
+const hpp = require("hpp");
+const slowDown = require("express-slow-down");
+const morgan = require("morgan");
+const http = require("http");
+
+const { logger, securityLogger, apiLogger } = require("./services/logger");
+const { clerkMiddleware } = require("@clerk/express");
+const { setupWebSocket } = require("./services/websocketService");
 
 const resumeRoutes = require("./routes/resumeRoutes");
 const interviewRoutes = require("./routes/interviewRoutes");
@@ -10,56 +18,116 @@ const codingRoutes = require("./routes/codingRoutes");
 const analyticsRoutes = require("./routes/analyticsRoutes");
 const chatRoutes = require("./routes/chatRoutes");
 
-const { clerkMiddleware } = require("@clerk/express");
-
-const http = require("http");
-const { setupWebSocket } = require("./services/websocketService");
-
 const app = express();
 
+// ── Deployment & Proxy Hardening ───────────────────────────────
+// Trust the first proxy (Vercel, Cloudflare, etc.) for accurate IP rate limiting
+app.set("trust proxy", 1);
+
+// Enforce HTTPS in production (Vercel/Cloudflare usually handle this, but better to be safe)
+app.use((req, res, next) => {
+    if (process.env.NODE_ENV === 'production' && req.headers['x-forwarded-proto'] !== 'https') {
+        return res.redirect(`https://${req.headers.host}${req.url}`);
+    }
+    next();
+});
+
+// ── Structured Logging ───────────────────────────────────────
+app.use(morgan("combined", {
+    stream: { write: (message) => logger.info(message.trim()) }
+}));
+
 // ── Security Headers ─────────────────────────────────────────
-app.use(helmet());
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            "default-src": ["'self'"],
+            "script-src": ["'self'", "'unsafe-inline'", "https://clerk.skilio.com", "*.clerk.accounts.dev"],
+            "connect-src": ["'self'", "https://clerk.skilio.com", "*.clerk.accounts.dev", "*.supabase.co", "wss://*.supabase.co"],
+            "img-src": ["'self'", "data:", "https://img.clerk.com"],
+        }
+    },
+    crossOriginEmbedderPolicy: false
+}));
+app.use(hpp());
 
 // ── CORS — restrict to known origins ─────────────────────────
+const allowedOrigins = [
+    process.env.FRONTEND_URL, 
+    "http://localhost:3000", 
+    "http://localhost:5173",
+    "https://skilio.vercel.app"
+].filter(Boolean);
+
 app.use(cors({
-    origin: true,
+    origin: (origin, callback) => {
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.indexOf(origin) === -1) {
+            securityLogger.warn(`CORS BLOCK: Unauthorized origin ${origin}`);
+            return callback(null, false);
+        }
+        return callback(null, true);
+    },
     credentials: true,
 }));
 
-// ── Body parsing with explicit size limit ────────────────────
 app.use(express.json({ limit: "1mb" }));
 
-// ── Rate Limiting ────────────────────────────────────────────
+// ── Abuse Protection & Rate Limiting ────────────────────────
+const rateLimitHandler = (req, res, next, options) => {
+    securityLogger.warn(`RATE_LIMIT_HIT: ${req.ip} reached limit for ${req.originalUrl}`);
+    res.status(options.statusCode).json({ error: options.message });
+}
+
+const speedLimiter = slowDown({
+    windowMs: 15 * 60 * 1000,
+    delayAfter: 100,
+    delayMs: (hits) => (hits - 100) * 500,
+    maxDelayMs: 20000,
+});
+app.use(speedLimiter);
+
 const generalLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
+    windowMs: 15 * 60 * 1000, 
     max: 500,
-    standardHeaders: true,
+    standardHeaders: 'draft-7',
     legacyHeaders: false,
-    message: { error: "Too many requests, please try again later." },
+    message: "Too many requests. Please slow down.",
+    handler: rateLimitHandler
 });
 app.use(generalLimiter);
 
-// Stricter limits for AI-powered endpoints (cost protection)
 const aiLimiter = rateLimit({
-    windowMs: 60 * 1000, // 1 minute
-    max: 60,
-    message: { error: "AI rate limit reached. Please wait before retrying." },
+    windowMs: 5 * 60 * 1000, 
+    max: 20, 
+    message: "AI generation limit reached. Please wait a few minutes.",
+    handler: rateLimitHandler
 });
+
 app.use("/chat", aiLimiter);
-app.use("/interview", aiLimiter);
+app.use("/interview/start", aiLimiter);
 app.use("/coding", aiLimiter);
 
-// Strict limit for uploads
 const uploadLimiter = rateLimit({
-    windowMs: 60 * 1000,
-    max: 100,
-    message: { error: "Upload rate limit reached. Please wait before retrying." },
+    windowMs: 10 * 60 * 1000,
+    max: 20,
+    message: "Too many upload attempts. Please wait.",
+    handler: rateLimitHandler
 });
-app.use("/resume", uploadLimiter);
+app.use("/resume/upload", uploadLimiter);
+
+const scrapingLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100,
+    message: "Data limit exceeded. Please don't scrape our data.",
+    handler: rateLimitHandler
+});
+app.use("/analytics", scrapingLimiter);
 
 // ── Auth ─────────────────────────────────────────────────────
 app.use(clerkMiddleware());
 
+// ── Routes ───────────────────────────────────────────────────
 app.use("/resume", resumeRoutes);
 app.use("/interview", interviewRoutes);
 app.use("/coding", codingRoutes);
@@ -69,30 +137,39 @@ app.use("/chat", chatRoutes);
 // Health check
 app.get("/health", (req, res) => res.json({ status: "ok" }));
 
-// global error handler to resolve HTML 500/413 errors
+// 404 Handler
+app.use((req, res) => {
+    apiLogger.info(`404_NOT_FOUND: ${req.method} ${req.url}`);
+    res.status(404).json({ error: "Endpoint not found" });
+});
+
+// Global error handler
 app.use((err, req, res, next) => {
     if (err.name === 'MulterError' && err.code === 'LIMIT_FILE_SIZE') {
         return res.status(413).json({ error: "File too large. Maximum size is 10MB." });
     }
 
-    // Clerk unauthorized error
     if (err.message === 'Unauthenticated' || err.statusCode === 401) {
+        securityLogger.info(`AUTH_FAIL: Unauthorized access attempt to ${req.originalUrl}`);
         return res.status(401).json({ error: "Unauthorized" });
     }
 
-    console.error("❌ Global error:", err);
+    logger.error(`UNHANDLED_ERROR: ${err.message}`, { 
+        stack: err.stack, 
+        path: req.originalUrl,
+        ip: req.ip 
+    });
+
     res.status(err.status || 500).json({
-        error: err.message || "Internal server error"
+        error: process.env.NODE_ENV === 'production' ? "Internal server error" : err.message
     });
 });
-
 
 const server = http.createServer(app);
 setupWebSocket(server);
 
 const PORT = process.env.PORT || 8000;
 server.listen(PORT, () => {
+    logger.info(`⚡ Skilio API Engine active on port ${PORT}`);
     console.log(`Server running on port ${PORT}`);
-    require('express-list-endpoints')(app).forEach(r => console.log(r.path, r.methods));
 });
-
