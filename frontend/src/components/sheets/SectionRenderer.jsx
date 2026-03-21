@@ -10,22 +10,31 @@ import { MemoryLayout } from './diagrams/MemoryLayout'
  * SectionRenderer — Handles rendering for all interview sheet section types
  */
 export default function SectionRenderer({ section, copyCode, copied }) {
-  switch (section.type) {
-    case 'text':
+  if (!section) return null
+  const type = section.type?.toLowerCase()
+  const content = section.content || {}
+
+  switch (type) {
+    case 'text': {
+      const body = content.body || content.text || content.content || ''
+      if (!body && typeof content === 'string') return <p className="text-[17px] leading-[1.8] text-[var(--text-2)] font-medium mb-6">{content}</p>
+      
       return (
         <div className="space-y-6">
-          {section.content?.body?.split('\n').map((para, i) => (
+          {body.split('\n').filter(p => p.trim()).map((para, i) => (
             <p key={i} className="text-[17px] leading-[1.8] text-[var(--text-2)] font-medium">
               {para}
             </p>
           ))}
         </div>
       )
+    }
 
-    case 'tips':
+    case 'tips': {
+      const items = content.items || content.tips || []
       return (
         <ul className="grid grid-cols-1 md:grid-cols-2 gap-4 list-none p-0 my-8">
-          {section.content?.items?.map((item, i) => (
+          {items.map((item, i) => (
             <li key={i} className="flex gap-4 bg-[var(--bg-1)] border border-[var(--border)] p-5 rounded-2xl items-start shadow-sm hover:border-[var(--text-3)] transition-all group">
               <div className="w-2 h-2 rounded-full bg-[var(--accent)] mt-2 shrink-0 group-hover:scale-125 transition-transform" />
               <div className="flex flex-col gap-1">
@@ -36,11 +45,13 @@ export default function SectionRenderer({ section, copyCode, copied }) {
           ))}
         </ul>
       )
+    }
 
-    case 'comparison':
+    case 'comparison': {
+      const items = content.items || []
       return (
         <div className="space-y-4 my-8 bg-[var(--bg-1)] p-8 rounded-3xl border border-[var(--border)]">
-          {section.content?.items?.map((item, i) => (
+          {items.map((item, i) => (
             <div key={i} className="flex flex-col sm:flex-row gap-2 sm:gap-8 py-5 border-b border-[var(--border)] last:border-0 last:pb-0 group">
               <span className="text-[var(--text-0)] font-extrabold min-w-[160px] text-[13px] uppercase tracking-[0.15em] opacity-80 group-hover:text-[var(--accent)] transition-colors">
                 {item.label}
@@ -52,14 +63,17 @@ export default function SectionRenderer({ section, copyCode, copied }) {
           ))}
         </div>
       )
+    }
 
-    case 'table':
+    case 'table': {
+      const headers = content.headers || []
+      const rows = content.rows || []
       return (
         <div className="overflow-x-auto rounded-3xl border border-[var(--border)] bg-[var(--bg-1)] my-10 shadow-xl scrollbar-hide">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-[var(--bg-2)] border-b border-[var(--border)]">
-                {section.content?.headers?.map((h, i) => (
+                {headers.map((h, i) => (
                   <th key={i} className="px-8 py-5 text-[11px] font-bold uppercase tracking-[0.25em] text-[var(--text-3)]">
                     {h}
                   </th>
@@ -67,7 +81,7 @@ export default function SectionRenderer({ section, copyCode, copied }) {
               </tr>
             </thead>
             <tbody className="divide-y divide-[var(--border)]">
-              {section.content?.rows?.map((row, i) => (
+              {rows.map((row, i) => (
                 <tr key={i} className="hover:bg-white/[0.03] transition-colors group">
                   {row.map((cell, j) => (
                     <td key={j} className="px-8 py-5 text-[15px] font-bold text-[var(--text-1)] whitespace-pre-wrap leading-relaxed">
@@ -80,19 +94,19 @@ export default function SectionRenderer({ section, copyCode, copied }) {
           </table>
         </div>
       )
+    }
 
     case 'code': {
-      // FIX: Database uses 'code' key, not 'snippet'
-      const { language, code, explanation } = section.content
-      const displayCode = code || section.content.snippet // Fallback for old data
+      const displayCode = content.code || content.snippet || content.content || ''
+      const language = content.language || 'code'
+      const explanation = content.explanation
       
       return (
         <div key={section.id} className="mb-10 group relative">
           <div className="rounded-2xl overflow-hidden border border-[var(--border-md)] shadow-2xl bg-[#0d1117] transition-all group-hover:shadow-[var(--accent)]/5">
-            {/* Language label bar */}
             <div className="flex items-center justify-between px-6 py-3 bg-[var(--bg-3)] border-b border-white/5 bg-white/5">
               <span className="text-[10px] font-mono font-bold text-white/40 uppercase tracking-widest">
-                {language || 'code'} snippet
+                {language} snippet
               </span>
               <button
                 onClick={() => copyCode(displayCode)}
@@ -102,14 +116,13 @@ export default function SectionRenderer({ section, copyCode, copied }) {
               </button>
             </div>
             
-            {/* Code block */}
             <pre
               className="p-8 overflow-x-auto text-[14px] leading-relaxed scrollbar-thin scrollbar-thumb-white/10"
               style={{
                 background: 'var(--code-bg, #0D1117)',
                 color: 'var(--code-text, #E6EDF3)',
                 fontFamily: 'var(--font-mono)',
-                whiteSpace: 'pre',        // Critical for preserving \n
+                whiteSpace: 'pre',
                 tabSize: 2,
               }}
             >
@@ -130,7 +143,10 @@ export default function SectionRenderer({ section, copyCode, copied }) {
     }
 
     case 'diagram': {
-      const { diagramType, data, caption } = section.content
+      const diagramType = content.diagramType
+      const data = content.data || []
+      const caption = content.caption
+      
       return (
         <div key={section.id} className="mb-12 bg-white/[0.01] p-8 rounded-[40px] border border-[var(--border)] border-dashed">
           <div className="flex items-center gap-3 mb-8">
@@ -154,6 +170,7 @@ export default function SectionRenderer({ section, copyCode, copied }) {
     }
 
     default:
+      console.warn('[SectionRenderer] Unknown type:', type, section)
       return null
   }
 }

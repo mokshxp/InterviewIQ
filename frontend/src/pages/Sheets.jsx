@@ -1,4 +1,4 @@
-import { useState, useEffect, Fragment } from 'react'
+import { useState, useEffect, useMemo, Fragment } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { BookOpen, Bookmark, CheckCircle, Clock, Lock, Search, Filter, ArrowRight, ExternalLink } from 'lucide-react'
@@ -20,47 +20,62 @@ const DIFFICULTY_COLORS = {
 };
 
 export default function Sheets() {
-    const [sheets, setSheets] = useState([])
+    const [allSheets, setAllSheets] = useState([])
     const [loading, setLoading] = useState(true)
     const [filter, setFilter] = useState('all')
     const [search, setSearch] = useState('')
     const [debouncedSearch, setDebouncedSearch] = useState('')
     const navigate = useNavigate()
 
-    // Memoize category counts for performance
-    const counts = useMemo(() => {
-        const c = { all: sheets.length }
-        sheets.forEach(s => {
-            const cat = s.category || 'general'
-            c[cat] = (c[cat] || 0) + 1
-        })
-        return c
-    }, [sheets])
-
-    // Debounce search effect
+    // Fetch once on mount
     useEffect(() => {
-        const timer = setTimeout(() => {
-            setDebouncedSearch(search)
-        }, 300)
-        return () => clearTimeout(timer)
-    }, [search])
-
-    useEffect(() => {
-        const fetchSheets = async () => {
+        const fetchInitial = async () => {
             setLoading(true)
             try {
-                const params = filter !== 'all' ? { category: filter } : {}
-                if (debouncedSearch) params.search = debouncedSearch
-                const res = await sheetsApi.list(params)
-                setSheets(res || [])
+                const res = await sheetsApi.list()
+                setAllSheets(res || [])
             } catch (err) {
-                console.error('[Sheets] Fetch Error:', err)
+                console.error('[Sheets] Initialization Error:', err)
             } finally {
                 setLoading(false)
             }
         }
-        fetchSheets()
-    }, [filter, debouncedSearch])
+        fetchInitial()
+    }, [])
+
+    // Debounce search
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearch(search)
+        }, 150) // Faster debounce for local filtering
+        return () => clearTimeout(timer)
+    }, [search])
+
+    // Memoized category counts on ALL sheets
+    const counts = useMemo(() => {
+        const c = { all: allSheets.length }
+        allSheets.forEach(s => {
+            const cat = s.category || 'general'
+            c[cat] = (c[cat] || 0) + 1
+        })
+        return c
+    }, [allSheets])
+
+    // Memoized filtered list
+    const filteredSheets = useMemo(() => {
+        return allSheets.filter(s => {
+            if (!s) return false;
+            const matchesCategory = filter === 'all' || s.category === filter
+            
+            const searchLower = debouncedSearch?.toLowerCase() || ''
+            const matchesSearch = !searchLower || 
+                s.title?.toLowerCase()?.includes(searchLower) ||
+                s.description?.toLowerCase()?.includes(searchLower) ||
+                s.tags?.some(tag => tag.toLowerCase().includes(searchLower))
+            
+            return matchesCategory && matchesSearch
+        })
+    }, [allSheets, filter, debouncedSearch])
 
     return (
         <div className="max-w-[1200px] mx-auto px-6 py-12">
@@ -148,9 +163,9 @@ export default function Sheets() {
                 {/* Stats row */}
                 <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
                   {[
-                    { num: sheets.length, label: 'Sheets' },
-                    { num: sheets.filter(s => !s.is_premium).length, label: 'Free' },
-                    { num: sheets.filter(s => s.is_premium).length, label: 'Pro', accent: true },
+                    { num: allSheets.length, label: 'Sheets' },
+                    { num: allSheets.filter(s => !s.is_premium).length, label: 'Free' },
+                    { num: allSheets.filter(s => s.is_premium).length, label: 'Pro', accent: true },
                   ].map((stat, i) => (
                     <Fragment key={stat.label}>
                       {i > 0 && <div style={{ width: '1px', height: '28px', background: 'var(--border)' }} />}
@@ -173,16 +188,11 @@ export default function Sheets() {
 
             {/* ── Category pills ── */}
             <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-              {CATEGORIES.map(cat => {
-                const count = cat.id === 'all' 
-                    ? sheets.length 
-                    : sheets.filter(s => s.category === cat.id).length
-                
-                return (
-                  <button
-                    key={cat.id}
-                    onClick={() => setFilter(cat.id)}
-                    style={{
+              {CATEGORIES.map(cat => (
+                <button
+                  key={cat.id}
+                  onClick={() => setFilter(cat.id)}
+                  style={{
                       display: 'flex', alignItems: 'center', gap: '7px',
                       padding: '10px 18px',
                       borderRadius: '50px',
@@ -208,8 +218,7 @@ export default function Sheets() {
                       {counts[cat.id] || 0}
                     </span>
                   </button>
-                )
-              })}
+              ))}
             </div>
 
             {/* ── Divider + bottom row ── */}
@@ -217,12 +226,12 @@ export default function Sheets() {
 
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', marginBottom: '32px' }}>
               <p style={{ fontSize: '13px', color: 'var(--muted-foreground)' }}>
-                Showing <strong style={{ color: 'var(--foreground)' }}>{sheets.length}</strong> sheets
+                Showing <strong style={{ color: 'var(--foreground)' }}>{filteredSheets.length}</strong> sheets
                 · <strong style={{ color: 'var(--foreground)' }}>
-                    {sheets.filter(s => !s.is_premium).length}
+                    {filteredSheets.filter(s => !s.is_premium).length}
                   </strong> free
                 · <strong style={{ color: 'var(--foreground)' }}>
-                    {sheets.filter(s => s.is_premium).length}
+                    {filteredSheets.filter(s => s.is_premium).length}
                   </strong> require Pro
               </p>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--muted-foreground)' }}>
@@ -250,12 +259,12 @@ export default function Sheets() {
                 </div>
             ) : (
                 <AnimatePresence mode="popLayout">
-                    {sheets.length > 0 ? (
+                    {filteredSheets.length > 0 ? (
                         <motion.div 
                             layout
                             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
                         >
-                            {sheets.map((sheet, idx) => (
+                            {filteredSheets.map((sheet, idx) => (
                                 <motion.div
                                     key={sheet.id}
                                     layout
