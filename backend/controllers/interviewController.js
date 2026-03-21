@@ -47,7 +47,7 @@ function sanitizeQuestion(aiQuestion, roundNumber, defaultDifficulty = 'intermed
   return {
     interview_id: aiQuestion.interview_id,
     round_number: roundNumber,
-    round_type: aiQuestion.round_type || 'mcq',
+    question_type: aiQuestion.round_type || aiQuestion.question_type || 'mcq',
     question_text: aiQuestion.questionText 
       || aiQuestion.question_text 
       || aiQuestion.question 
@@ -148,7 +148,7 @@ exports.startInterview = async (req, res) => {
       resume_id: resumeId, // null or valid UUID
       target_role: targetRole,
       difficulty: difficulty,
-      round_type: roundType,
+      type: roundType,
       status: "active",
       current_round: 1,
       total_rounds: totalRounds,
@@ -158,7 +158,7 @@ exports.startInterview = async (req, res) => {
     const { data: interview, error: intErr } = await supabase
       .from("interviews")
       .insert(interviewData)
-      .select("id, target_role, difficulty, round_type, total_rounds, current_round")
+      .select("id, target_role, difficulty, type, total_rounds, current_round")
       .single();
 
     if (intErr) {
@@ -220,7 +220,7 @@ exports.startInterview = async (req, res) => {
     const { data: savedQuestions, error: qErr } = await supabase
       .from("interview_questions")
       .insert(questionsToInsert)
-      .select("id, round_number, round_type, question_text, subject, topic, difficulty, options, explanation");
+      .select("id, round_number, question_type, question_text, subject, topic, difficulty, options, explanation");
 
     if (qErr) {
       log('9. QUESTIONS INSERT FAILED', {
@@ -347,7 +347,7 @@ exports.completeRound = async (req, res) => {
     const nextQsInsert = nextRoundQuestions.map(q => ({
       interview_id: interviewId,
       round_number: nextRoundNumber,
-      round_type: nextRoundType,
+      question_type: nextRoundType,
       question_text: q.questionText || q.problemStatement || "",
       question_slug: q.slug || null,
       subject: q.subject || null,

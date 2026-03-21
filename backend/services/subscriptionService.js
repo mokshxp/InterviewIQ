@@ -5,6 +5,19 @@ const { PLANS } = require('./plans');
  * Fetch a user's subscription details. Default to 'free' if missing.
  */
 async function getUserSubscription(userId) {
+    // ── DEV BYPASS ──────────────────────────────────────────────
+    // If we're in local development, treat every user as a Pro user
+    if (process.env.NODE_ENV !== 'production' || process.env.DEV_BYPASS === 'true') {
+        return {
+            user_id: userId,
+            plan: 'pro', // Give full access to everything in dev
+            status: 'active',
+            interviews_used_this_month: 0,
+            resume_uploads_this_month: 0,
+            is_dev_bypass: true
+        };
+    }
+
     const { data, error } = await supabase
         .from('subscriptions')
         .select('*')

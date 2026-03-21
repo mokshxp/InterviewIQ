@@ -333,22 +333,26 @@ export default function LandingPage({ devMode }) {
                         <motion.p variants={fadeUp} style={{ ...bodyText, marginBottom: 32 }}>
                             Skilio simulates real technical interviews using AI, analyzes your resume for targeted prep, and provides a personal career copilot — all so you land the job you deserve.
                         </motion.p>
-                        <motion.div variants={fadeUp} style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
+                        <motion.div variants={fadeUp} style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
                             <SafeSignedOut>
                                 <SafeSignInButton mode="modal">
-                                    <motion.button className="btn-amber btn-lg ripple-btn" whileHover={{ scale: 1.05, boxShadow: '0 0 32px var(--amber-glow)' }} whileTap={{ scale: 0.97 }}>
-                                        🎙️ Start Interview
-                                    </motion.button>
+                                    <button className="btn-primary">
+                                        Start Your Interview
+                                        <div className="btn-primary-icon">⚡</div>
+                                    </button>
                                 </SafeSignInButton>
                             </SafeSignedOut>
                             <SafeSignedIn>
-                                <motion.button className="btn-amber btn-lg ripple-btn" onClick={() => navigate('/start')} whileHover={{ scale: 1.05, boxShadow: '0 0 32px var(--amber-glow)' }} whileTap={{ scale: 0.97 }}>
-                                    🎙️ Start Interview
-                                </motion.button>
+                                <button className="btn-primary" onClick={() => navigate('/start')}>
+                                    Start Your Interview
+                                    <div className="btn-primary-icon">⚡</div>
+                                </button>
                             </SafeSignedIn>
-                            <motion.button className="btn-outline btn-lg" onClick={() => navigate('/resume')} whileHover={{ scale: 1.03, borderColor: 'var(--emerald)', color: 'var(--emerald)' }} whileTap={{ scale: 0.97 }}>
-                                📄 Upload Resume
-                            </motion.button>
+
+                            <button className="btn-secondary" onClick={() => navigate('/resume')}>
+                                <div className="upload-icon">↑</div>
+                                <span>Upload Resume</span>
+                            </button>
                         </motion.div>
                     </motion.div>
                     {/* Right — floating mock UI */}
