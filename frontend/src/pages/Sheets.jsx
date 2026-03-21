@@ -258,22 +258,18 @@ export default function Sheets() {
                     ))}
                 </div>
             ) : (
-                <AnimatePresence mode="popLayout">
+                <AnimatePresence>
                     {filteredSheets.length > 0 ? (
-                        <motion.div 
-                            layout
-                            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-                        >
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                             {filteredSheets.map((sheet, idx) => (
                                 <motion.div
                                     key={sheet.id}
-                                    layout
-                                    initial={{ opacity: 0, scale: 0.9 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    exit={{ opacity: 0, scale: 0.9 }}
-                                    transition={{ duration: 0.3, delay: idx * 0.05 }}
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0 }}
+                                    transition={{ duration: 0.2, delay: idx * 0.02 }}
                                     onClick={() => navigate(`/sheets/${sheet.slug}`)}
-                                    className="group relative flex flex-col h-full bg-[var(--bg-1)] border border-[var(--border)] rounded-2xl p-6 transition-all duration-300 hover:border-[var(--accent)] hover:shadow-2xl hover:shadow-[var(--accent)]/10 hover:-translate-y-2 cursor-pointer"
+                                    className="group relative flex flex-col h-full bg-[var(--bg-1)] border border-[var(--border)] rounded-2xl p-6 transition-all duration-300 hover:border-[var(--accent)] hover:shadow-xl hover:shadow-[var(--accent)]/5 hover:-translate-y-1 cursor-pointer"
                                 >
                                     {/* Premium Badge */}
                                     {sheet.is_premium && (
@@ -312,7 +308,7 @@ export default function Sheets() {
                                     </div>
                                 </motion.div>
                             ))}
-                        </motion.div>
+                        </div>
                     ) : (
                         <div className="py-20 text-center">
                             <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[var(--bg-1)] mb-6">
